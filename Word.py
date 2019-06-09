@@ -1,31 +1,21 @@
 import random
 
-import variables
-
 
 class Word:
 
     def __init__(self):
-        nombreLettres = random.randrange(1, 8)
-        motChiffres = []
-
-        # construction aléatoire du mot
-        i = 0
-        while i <= nombreLettres:
-            motChiffres.append(random.randrange(1, 26))
-            i += 1
-
-        self.mot_a_deviner = Word.mot_en_lettre(motChiffres)
+        words = Word.load_words().split(' ')
+        integer = random.randrange(0, len(words) - 1)
+        self.mot_a_deviner = words[integer]
+        del words
         self.longueur = len(self.mot_a_deviner)
         self.mot_cache = None
         self.trials = 8
 
     @staticmethod
-    def mot_en_lettre(mot_chiffres: list):
-        liste = []
-        for elt in mot_chiffres:
-            liste.append(variables.alphabet[elt - 1])
-        return liste
+    def load_words() -> str:
+        with open("mots8Lettres.txt", "r", encoding='utf8') as fileScores:
+            return fileScores.read()
 
     def creationMotCache(self):
         mot = []

@@ -6,12 +6,11 @@ from Word import Word
 
 
 class Pendu:
-
     CONTINUE_GAME = "o"
 
-    MENU_SCORES = 2
-    MENU_GAME = 1
-    MENU_EXIT = 3
+    MENU_SCORES = "2"
+    MENU_GAME = "1"
+    MENU_EXIT = "3"
 
     MENU_CHOICES = [MENU_GAME, MENU_SCORES, MENU_EXIT]
 
@@ -28,9 +27,18 @@ class Pendu:
         self.word.creationMotCache()
 
     def load_scores(self) -> None:
-        with open("scores", "rb") as fileScores:
-            unpickler = pickle.Unpickler(fileScores)
-            self.scores = unpickler.load()
+        def load():
+            with open("scores", "rb") as file:
+                unpickler = pickle.Unpickler(file)
+                self.scores = dict(unpickler.load())
+
+        try:
+            load()
+        except FileNotFoundError:
+            with open("scores", "wb+") as fileScores:
+                pickler = pickle.Pickler(fileScores)
+                pickler.dump({})
+            self.scores = None
 
     def prompt_menu(self) -> None:
         print("Choisissez une option : ")
@@ -41,9 +49,12 @@ class Pendu:
 
     def prompt_scores(self) -> None:
         Pendu.cls()
-        print("Voici le tableau des scores : ")
-        for username, score in dict(self.scores).items():
-            print(f'{username} : {score}')
+        if self.scores:
+            print("Voici le tableau des scores : ")
+            for username, score in self.scores.items():
+                print(f'{username} : {score}')
+        else:
+            print('Aucun score enregistré pour l\'instant')
         print('\n')
 
     def prompt_hidden_word(self) -> None:
@@ -53,21 +64,20 @@ class Pendu:
         self.username = input("Votre nom : ")
 
     def test_word_found(self) -> bool:
-        return self.word.mot_a_deviner == self.word.mot_cache
+        return self.word.mot_a_deviner == "".join(self.word.mot_cache)
 
     def prompt_and_control_letter_input(self) -> None:
         try:
             self.letter_input = input("Entrez une lettre : ")
-            assert variables.alphabet.count(self.letter_input) == 1
+            assert variables.alphabet.count(self.letter_input.upper()) == 1
         except AssertionError:
-            self.letter_input = input("Entrez une lettre et une seule ! : ")
-        while variables.alphabet.count(self.letter_input) != 1:
-            self.letter_input = input("Entrez une lettre et une seule ! : ")
+            while variables.alphabet.count(self.letter_input.upper()) != 1:
+                self.letter_input = input("Entrez une lettre et une seule ! : ")
 
     def add_letter(self) -> None:
         for i, elt in enumerate(self.word.mot_a_deviner):
-            if elt == self.letter_input:
-                self.word.mot_cache[i] = self.letter_input
+            if elt == self.letter_input.upper():
+                self.word.mot_cache[i] = self.letter_input.upper()
 
     def prompt_lose(self) -> None:
         print("Vous avez perdu\nLe pendu.mot etait :")

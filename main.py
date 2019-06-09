@@ -25,13 +25,14 @@ while pendu.choice_continue == Pendu.CONTINUE_GAME or pendu.choice_menu in Pendu
             pendu.add_letter()
             Pendu.cls()
             pendu.prompt_hidden_word()
-            pendu.word.trials -= 1
-
-            if pendu.test_word_found():
-                pendu.prompt_win()
             if pendu.word.trials == 0:
                 pendu.prompt_lose()
                 break
+            pendu.word.trials -= 1
+
+        if pendu.test_word_found():
+            pendu.record_scores()
+            pendu.prompt_win()
 
     if pendu.choice_menu == Pendu.MENU_EXIT:
         Pendu.cls()
